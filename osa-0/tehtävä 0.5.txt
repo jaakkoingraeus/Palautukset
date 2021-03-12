@@ -1,0 +1,22 @@
+title tehtävä 0.5
+
+selain --> palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/spa
+palvelin --> selain: HTML-koodi
+note over selain:
+HTML-koodi ohjaa selainta
+hakemaan myös CSS, JS ja JSON
+-tiedostot palvelimelta.
+end note
+
+selain --> palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/main.css
+palvelin --> selain: CSS-koodi
+selain --> palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/spa.js
+palvelin --> selain: JS-koodi
+selain --> palvelin: HTTP GET https://studies.cs.helsinki.fi/exampleapp/data.json
+palvelin --> selain: Json-koodi
+selain --> palvelin: HTTP GET https://studies.cs.helsinki.fi/favicon.ico
+palvelin --> selain: HTML-koodi
+
+note over selain:
+Päivittynyt sivu renderöidään
+kokonaisuudessaan selaimelle.
