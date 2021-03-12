@@ -1,0 +1,19 @@
+{
+  "persons": [
+    {
+      "name": "Miinu",
+      "number": "1111111",
+      "id": 19
+    },
+    {
+      "name": "Juhani",
+      "number": "3456789",
+      "id": 21
+    },
+    {
+      "name": "Niinuli",
+      "number": "3465768",
+      "id": 22
+    }
+  ]
+}

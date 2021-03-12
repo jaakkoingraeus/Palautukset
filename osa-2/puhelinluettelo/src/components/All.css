@@ -1,0 +1,23 @@
+.goodMessage {
+    color: green;
+    background-color: lightgray;
+    padding: 10px;
+    border-color: green;
+    border-style: solid;
+    border-radius: 7px;
+    border-width: 3px;
+    font-size: 2rem;
+    margin: 15px;
+}
+
+.alertMessage {
+    color: red;
+    background-color: lightgray;
+    padding: 10px;
+    border-color: red;
+    border-style: solid;
+    border-radius: 7px;
+    border-width: 3px;
+    font-size: 2rem;
+    margin: 15px;  
+}
