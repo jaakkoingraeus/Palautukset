@@ -1,4 +1,5 @@
 const app = require("../app")
+const lodash = require('lodash')
 
 const dummy = (blogs) => {
     return 1
@@ -28,8 +29,13 @@ const favouriteBlog = (blogs) => {
     )
 }
 
+const mostBlogs = (blogs) => {
+    return 1
+}
+
 module.exports = {
     dummy,
     totalLikes,
-    favouriteBlog
+    favouriteBlog,
+    mostBlogs
 }
