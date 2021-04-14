@@ -3,6 +3,7 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const mongoose = require('mongoose')
+const logger = require('./utils/logger')
 
 const blogSchema = mongoose.Schema({
   title: String,
@@ -23,10 +24,10 @@ mongoose
     useCreateIndex: true 
   })
   .then( res => {
-    console.log("Connected to MongoDB")
+    logger.info("Connected to MongoDB")
   })
   .catch( err => {
-    console.log("Error connecting to MongoDB")
+    logger.error("Error connecting to MongoDB")
   })
 
 app.use(cors())
@@ -52,5 +53,5 @@ app.post('/api/blogs', (request, response) => {
 
 const PORT = 3003
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+  logger.info(`Server running on port ${PORT}`)
 })
