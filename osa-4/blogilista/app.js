@@ -4,21 +4,13 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 const config = require('./utils/config')
 const logger = require('./utils/logger')
-
-const blogSchema = mongoose.Schema({
-    title: String,
-    author: String,
-    url: String,
-    likes: Number
-  })
+const blogsRouter = require('./controllers/notes')
   
-  const Blog = mongoose.model('Blog', blogSchema)
-  
-  const mongoUrl = config.MONGODB_URI
+const mongoUrl = config.MONGODB_URI
 
-  logger.info("Connecting to ", mongoUrl)
+logger.info("Connecting to ", mongoUrl)
 
-  mongoose
+mongoose
     .connect(mongoUrl, { 
       useNewUrlParser: true, 
       useUnifiedTopology: true, 
@@ -32,29 +24,9 @@ const blogSchema = mongoose.Schema({
       logger.error("Error connecting to MongoDB: ", error.message)
     })
   
-  app.use(cors())
-  app.use(express.json())
-  
-  app.get('/api/blogs', (request, response) => {
-    Blog
-      .find({})
-      .then( blogs => {
-          logger.info(blogs)
-          response.json(blogs)
-      })
-      .catch( err => {
-          logger.error(err)
-      })
-  })
-  
-  app.post('/api/blogs', (request, response) => {
-    const blog = new Blog(request.body)
-  
-    blog
-      .save()
-      .then(result => {
-        response.status(201).json(result)
-      })
-  })
+app.use(cors())
+app.use(express.json())
 
-  module.exports = app
+app.use('/api/blogs', blogsRouter)
+  
+module.exports = app
