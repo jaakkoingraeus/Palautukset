@@ -1,12 +1,13 @@
 const bcrypt = require('bcryptjs')
 const usersRouter = require('express').Router()
 const User = require('../models/user')
+const Blog = require('../models/blog')
+const logger = require('../utils/logger')
 
 usersRouter.post('/', async (req, res) => {
     const body = req.body
+    
     //Validoidaan body
-
-    //Määrittely
     if ( !body.username|| !body.password ) {
         res.status(400).send('Password and username must be defined.')
         return
@@ -23,7 +24,7 @@ usersRouter.post('/', async (req, res) => {
 
     console.log('Same username: ', sameUsername)
 
-    if (sameUsername.length !== 0) {
+    if ( sameUsername.length !== 0 ) {
         res.status(400).send('Username must be unique')
         return
     }
@@ -45,19 +46,22 @@ usersRouter.post('/', async (req, res) => {
 })
 
 usersRouter.get('/', async (req, res) => {
+    //Alustetaan listat
     const userList = await User.find({})
+    logger.info({userList})
+    //const blogList = await Blog.find({})
+    //logger.info({blogList})
 
-    res.json(userList.map( user => user.toJSON()))
+    const newList = await Promise.all(userList.map( async (user) => {
+        const blogsByUser = await Blog.find({ user: user.id })
+        logger.info('Blogs by user: ', blogsByUser)
+        const ret = await {...user.toJSON(), blogs: blogsByUser}
+        return ret
+    }))
+    
+    logger.info('New list: ', newList)
+    res.json(newList)
+    
 })
 
 module.exports = usersRouter
-
-/**
- * Pitää olla password ja username ja min 3 merkkiä
- * 
- * Uniikki username
- * 
- * Post metodin tulee palauttaa status ja error
- * 
- * 
- */

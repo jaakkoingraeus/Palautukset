@@ -18,8 +18,8 @@ blogsRouter.get('/:id', async (request, response) => {
 })
   
 blogsRouter.post('/', async (request, response) => {
-    const userToAdd = (await User.findOne({})).id
-    const body = {...request.body, user: userToAdd }
+    //const userToAdd = (await User.findOne({ id: request.body.user })).id
+    const body = {...request.body}
     
     const blog = await new Blog(body)
     const post = await blog.save()
