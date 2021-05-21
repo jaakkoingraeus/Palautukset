@@ -47,7 +47,7 @@ blogsRouter.delete(`/:id`, async (req, res) => {
     logger.info('Writer id: ', writerId)
 
     //Verrataan id:tä pyynnön mukana olevan tokenin id:seen
-    const reqId = jwt.verify(req.token, process.env.SECRET).id.toString()
+    const reqId = req.user.id.toString()
 
     logger.info('Request id: ', reqId)
 
