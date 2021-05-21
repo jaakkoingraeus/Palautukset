@@ -48,9 +48,6 @@ usersRouter.post('/', async (req, res) => {
 usersRouter.get('/', async (req, res) => {
     //Alustetaan listat
     const userList = await User.find({})
-    logger.info({userList})
-    //const blogList = await Blog.find({})
-    //logger.info({blogList})
 
     const newList = await Promise.all(userList.map( async (user) => {
         const blogsByUser = await Blog.find({ user: user.id })
@@ -58,8 +55,7 @@ usersRouter.get('/', async (req, res) => {
         const ret = await {...user.toJSON(), blogs: blogsByUser}
         return ret
     }))
-    
-    logger.info('New list: ', newList)
+
     res.json(newList)
     
 })

@@ -3,7 +3,7 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImphYWtrb2JvaSIsImlkIjoiNjBhNjc1OTMwYjE0ZWYzZTg0NzY2ZmU4IiwiaWF0IjoxNjIxNTIxODQ4fQ.4VwxcoDWOoLGFdFM5ATKTpe5xYBhkSa92IYfrHrDyy0
 
 {
-        "title": "Toka blogi",
+        "title": "Token extractor blogi",
         "author": "Jaakko Sir.",
         "url": "http://www.aalto.fi",
         "likes": 4,
