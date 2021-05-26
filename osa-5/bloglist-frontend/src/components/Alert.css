@@ -1,0 +1,26 @@
+.alertContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 10px 20% 200px;
+    width: 80vw;
+    margin: 0 auto;
+}
+
+.alertText {
+    text-align: center;
+    font-size: 3rem;
+    padding: 2rem;
+}
+
+.green {
+    background: lightgreen;
+    color: green;
+    border: solid green 2px;
+}
+
+.red {
+    background: lightcoral;
+    color: red;
+    border: solid red 2px;
+}

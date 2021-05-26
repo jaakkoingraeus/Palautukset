@@ -3,6 +3,7 @@ import Blog from './components/Blog'
 import blogService from './services/blogs'
 import userService from './services/users'
 import loginService from './services/login'
+import Alert from './components/Alert'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -15,6 +16,9 @@ const App = () => {
   const [newTitle, setNewTitle] = useState('')
   const [newAuthor, setNewAuthor] = useState('')
   const [newUrl, setNewUrl] = useState('')
+
+  //Alert
+  const [alertText, setAlertText] = useState({text: "", status: true})
 
   useEffect(() => {
     const user = window.localStorage.getItem('user')
@@ -49,6 +53,10 @@ const App = () => {
     }
     catch {
       console.log('invalid credentials')
+      setAlertText({text: 'Wrong password or username', status: false})
+      setTimeout(() => {
+        setAlertText({text: ""})
+      }, 2000)
     }
   }
 
@@ -60,6 +68,7 @@ const App = () => {
   const loginForm = () => {
     return (
       <div>
+        <Alert alertText={alertText}/>
         <h2>Login to application</h2>
         <form onSubmit={handleLogin}>
           <div style={{display: 'flex', flexDirection: 'column'}}>
@@ -99,19 +108,25 @@ const App = () => {
     setNewUrl('')
     setNewTitle('')
     setNewAuthor('')
+    setAlertText({text: `Blog ${blog.title} has been added`, status: true})
+    setTimeout(() => {
+      setAlertText({text: ""})
+    }, 2000)
   }
 
   const blogsSection = () => {
     return (
       <>
       <div>
+        <Alert alertText={alertText}/>
         <h2>Add new blog</h2>
         <form onSubmit={blogSubmit}>
           <div>
           Title:
           <input
           type = "text"
-          value = {newTitle}
+          v
+          alue = {newTitle}
           name = "blogTitle"
           onChange = {({ target }) => setNewTitle(target.value)}/>
           </div>
