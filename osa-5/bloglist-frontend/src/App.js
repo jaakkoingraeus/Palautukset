@@ -4,6 +4,7 @@ import blogService from './services/blogs'
 import userService from './services/users'
 import loginService from './services/login'
 import Alert from './components/Alert'
+import LoginForm from './components/LoginForm'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -11,6 +12,7 @@ const App = () => {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [blogToAdd, setBlogToAdd] = useState('')
+  const [loginVisible, setLoginVisible] = useState(false)
 
   //New Blog
   const [newTitle, setNewTitle] = useState('')
@@ -66,32 +68,30 @@ const App = () => {
   }
 
   const loginForm = () => {
+    const hideWhenVisible = { display: loginVisible ? 'none' : ''}
+    const showWhenVisible = { display: loginVisible ? '' : 'none'}
+
     return (
       <div>
-        <Alert alertText={alertText}/>
-        <h2>Login to application</h2>
-        <form onSubmit={handleLogin}>
-          <div style={{display: 'flex', flexDirection: 'column'}}>
-            Username
-            <input
-            type = "text"
-            value = {username}
-            name = "Username"
-            onChange = {({ target }) => setUsername(target.value)}
-            />
-            Password
-            <input
-            type = "text"
-            value = {password}
-            name = "Password"
-            onChange = {({ target }) => setPassword(target.value)}
-            />
-          </div>
-          <button type="submit">Login now</button>
-        </form>
+        <div style={hideWhenVisible}>
+          <button onClick={() => setLoginVisible(true)}>Log in</button>
+        </div>
+        <div style={showWhenVisible}>
+          <LoginForm 
+            username={username}
+            handleLogin={handleLogin}
+            setUsername={setUsername}
+            password={password}
+            setPassword={setPassword}
+          />
+
+          <button onClick={() => setLoginVisible(false)}>Cancel</button>
+        </div>
       </div>
     )
+
   }
+
 
   //ADD BLOG
   const blogSubmit = (e) => {
