@@ -6,11 +6,10 @@ import { setNotification, removeNotification } from '../reducers/notificationRed
 const AnecdoteForm = () => {
     const dispatch = useDispatch()
     
-    const createNewAnecdote = async ( event ) => {
+    const createNewAnecdote = ( event ) => {
         console.log('new anecdote')
         dispatch(createAnecdote(event))
-        dispatch(setNotification('new anecdote created'))
-        setTimeout(() => dispatch(removeNotification()), 5000)
+        dispatch(setNotification('new anecdote created', 5))
     }
 
     return (

@@ -4,14 +4,21 @@ const initialState = {
     text: null
 }
 
-export const setNotification = ( text ) => {
-    return ({
-        type: 'SET',
-        data: { text }
-    })
+export const setNotification = ( text, time ) => {
+    return async dispatch => {
+        dispatch({
+            type: 'SET',
+            data: { text }
+        })
+        setTimeout( () => {
+            dispatch({
+                type: 'REMOVE'
+            })
+        }, (time * 1000))  
+    }
 }
 
-export const removeNotification = ( text ) => {
+export const removeNotification = () => {
     return ({
         type: 'REMOVE'
     })

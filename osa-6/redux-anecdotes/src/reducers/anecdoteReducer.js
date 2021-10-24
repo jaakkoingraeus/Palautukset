@@ -1,11 +1,4 @@
-const anecdotesAtStart = [
-  'If it hurts, do it more often',
-  'Adding manpower to a late software project makes it later!',
-  'The first 90 percent of the code accounts for the first 90 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.',
-  'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.',
-  'Premature optimization is the root of all evil.',
-  'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.'
-]
+import anecdotes, { postAnecdote, putAnecdote } from "../services/anecdotes"
 
 const getId = () => (100000 * Math.random()).toFixed(0)
 
@@ -19,28 +12,40 @@ const asObject = (anecdote) => {
 
 //ACTION CREATOR FUNCTIONS
 export const voteAnecdote = ( id ) => {
-  return (
-    {
+  return async dispatch => {
+    const anecdote = await putAnecdote(id)
+    dispatch({
       type: 'VOTE',
       data: { id }
-    }
-  )
+    })
+  }
 }
 
 export const createAnecdote = ( event ) => {
   event.preventDefault()
   const obj = asObject(event.target.anecdote.value)
-  return (
-    {
+
+  return async dispatch => {
+    const anecdote = await postAnecdote(obj)
+    dispatch({
       type: 'CREATE_NEW',
-      data: obj
-    }
-  )
+      data: anecdote
+    })
+  }
 }
 
-const initialState = anecdotesAtStart.map(asObject)
+export const initializeAnecdotes = ( ) => {
+  return async dispatch => {
+    const notes = await anecdotes.getAll()
+    dispatch({
+      type: 'INIT',
+      data: notes
+    })
+  }
+}
 
-const anecdoteReducer = (state = initialState, action) => {
+
+const anecdoteReducer = (state = [], action) => {
   console.log('state now: ', state)
   console.log('action', action)
 
@@ -54,10 +59,11 @@ const anecdoteReducer = (state = initialState, action) => {
       const newState = state.map( n => (
         n.id !== action.data.id ? n : moreVotes
       ))
-
       return newState
     case 'CREATE_NEW':
       return state.concat(action.data)
+    case 'INIT':
+      return action.data
     default:
       return state
   }

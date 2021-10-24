@@ -12,8 +12,7 @@ const AnecdoteList = () => {
     const vote = (id) => {
         console.log('vote', id)
         dispatch(voteAnecdote(id))
-        dispatch(setNotification('you voted an anecdote'))
-        setTimeout(() => dispatch(removeNotification()), 5000)
+        dispatch(setNotification('you voted an anecdote', 5))
     }
     
     const compareVotes = (a, b) => {
