@@ -4,17 +4,24 @@ const initialState = {
     text: null
 }
 
+let currentTimeout = null
+
 export const setNotification = ( text, time ) => {
+    if (currentTimeout !== null) {
+        clearTimeout(currentTimeout)
+        currentTimeout = null
+    }
+
     return async dispatch => {
         dispatch({
             type: 'SET',
             data: { text }
         })
-        setTimeout( () => {
+        currentTimeout = setTimeout( () => {
             dispatch({
                 type: 'REMOVE'
             })
-        }, (time * 1000))  
+        }, (time * 1000))
     }
 }
 
