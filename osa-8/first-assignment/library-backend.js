@@ -1,95 +1,39 @@
-const { ApolloServer, gql } = require('apollo-server')
+require('dotenv').config()
+const { ApolloServer, gql, ApolloError, UserInputError } = require('apollo-server')
+const mongoose = require('mongoose')
 const { v1: uuid } = require('uuid')
+const data = require('./data/initData')
+const Book = require('./models/book')
+const Author = require('./models/author')
 
-let authors = [
-  {
-    name: 'Robert Martin',
-    id: "afa51ab0-344d-11e9-a414-719c6709cf3e",
-    born: 1952,
-  },
-  {
-    name: 'Martin Fowler',
-    id: "afa5b6f0-344d-11e9-a414-719c6709cf3e",
-    born: 1963
-  },
-  {
-    name: 'Fyodor Dostoevsky',
-    id: "afa5b6f1-344d-11e9-a414-719c6709cf3e",
-    born: 1821
-  },
-  { 
-    name: 'Joshua Kerievsky', // birthyear not known
-    id: "afa5b6f2-344d-11e9-a414-719c6709cf3e",
-  },
-  { 
-    name: 'Sandi Metz', // birthyear not known
-    id: "afa5b6f3-344d-11e9-a414-719c6709cf3e",
-  },
-]
-
-/*
- * Saattaisi olla järkevämpää assosioida kirja ja sen tekijä tallettamalla kirjan yhteyteen tekijän nimen sijaan tekijän id
- * Yksinkertaisuuden vuoksi tallennamme kuitenkin kirjan yhteyteen tekijän nimen
-*/
-
-let books = [
-  {
-    title: 'Clean Code',
-    published: 2008,
-    author: 'Robert Martin',
-    id: "afa5b6f4-344d-11e9-a414-719c6709cf3e",
-    genres: ['refactoring']
-  },
-  {
-    title: 'Agile software development',
-    published: 2002,
-    author: 'Robert Martin',
-    id: "afa5b6f5-344d-11e9-a414-719c6709cf3e",
-    genres: ['agile', 'patterns', 'design']
-  },
-  {
-    title: 'Refactoring, edition 2',
-    published: 2018,
-    author: 'Martin Fowler',
-    id: "afa5de00-344d-11e9-a414-719c6709cf3e",
-    genres: ['refactoring']
-  },
-  {
-    title: 'Refactoring to patterns',
-    published: 2008,
-    author: 'Joshua Kerievsky',
-    id: "afa5de01-344d-11e9-a414-719c6709cf3e",
-    genres: ['refactoring', 'patterns']
-  },  
-  {
-    title: 'Practical Object-Oriented Design, An Agile Primer Using Ruby',
-    published: 2012,
-    author: 'Sandi Metz',
-    id: "afa5de02-344d-11e9-a414-719c6709cf3e",
-    genres: ['refactoring', 'design']
-  },
-  {
-    title: 'Crime and punishment',
-    published: 1866,
-    author: 'Fyodor Dostoevsky',
-    id: "afa5de03-344d-11e9-a414-719c6709cf3e",
-    genres: ['classic', 'crime']
-  },
-  {
-    title: 'The Demon ',
-    published: 1872,
-    author: 'Fyodor Dostoevsky',
-    id: "afa5de04-344d-11e9-a414-719c6709cf3e",
-    genres: ['classic', 'revolution']
-  },
-]
+//Setup MongoDB
+const MONGO_URI = process.env.MONGO_URI
+mongoose
+  .connect(MONGO_URI)
+  .then( res => {
+    console.log('Connected to MongoDB')
+  })
+  .catch( err => {
+    console.error('ERROR connecting to MongoDB', err)
+  })
 
 const typeDefs = gql`
+  type User {
+    username: String!
+    favoriteGenre: String!
+    id: ID!
+  }
+
+  type Token {
+    value: String!
+  }
+
   type Query {
     bookCount(name: String): Int!
     authorCount: Int!
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
+    me: User
   }
 
   type Mutation {
@@ -99,17 +43,24 @@ const typeDefs = gql`
         published: Int!
         genres: [String!]!
     ): Book
-
     editAuthor(
         name: String!
         setToBorn: Int!
     ): Author
+    createUser(
+      username: String!
+      favoriteGenre: String!  
+    ): User
+    login(
+      username: String!
+      password: String!
+    ): Token
   }
 
   type Book {
     title: String!
     published: Int!
-    author: String!
+    author: Author!
     id: ID!
     genres: [String!]!
   }
@@ -124,65 +75,107 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-      bookCount: () => books.length,
-      authorCount: () => authors.length,
-      allBooks: (root, args) => {
+      bookCount: async () => {
+        try {
+          return await Book.countDocuments()
+        } catch (error) {
+          throw new ApolloError(error.message)
+        }
+      },
+      authorCount: async () => {
+        try {
+          return await Author.countDocuments()
+        } catch (error) {
+          throw new ApolloError(error.message)
+        }
+      },
+      allBooks: async (root, args) => {
         if (!args.author && !args.genre) {
-            return books
+            try {
+              return await Book.find({}).populate('author')
+            } catch (error) {
+              throw new ApolloError(error.message)
+            }
         }
 
         else if (args.author && !args.genre) {
-            return books.filter( b => b.author === args.author)
+            try {
+              const authorId = (await Author.findOne({ name: args.author }))._id
+              return await Book.find({ author: authorId }).populate('author')
+            } catch (error) {
+              throw new UserInputError(error.message)
+            }
         }
         
         else if (!args.author && args.genre) {
-            return books.filter( b => b.genres.indexOf(args.genre) !== -1)
+            try {
+              return await Book.find({ genres: { $in: [args.genre] } }).populate('author')
+            } catch (error) {
+              throw new UserInputError(error.message)
+            }
         }
 
         else {
-            return (
-                books.filter( b => b.author === args.author).filter( b => b.genres.indexOf(args.genre) !== -1)
-            )
+            try {
+              const authorId = (await Author.findOne({ name: args.author }))._id
+              return await Book.find({ genres: { $in: [args.genre] } }).populate('author').find({ author: authorId })
+            } catch (error) {
+              throw new UserInputError(error.message)
+            }
         }
     },
-      allAuthors: () => authors,
+      allAuthors: async () => {
+        try {
+          return await Author.find({})
+        } catch (error) {
+          throw new ApolloError(error.message)
+        }
+      },
   },
 
   Author: {
-      bookCount: (root) => {
-          return books.filter( b => b.author === root.name).length
+      bookCount: async (root) => {
+          try {
+            const authorId = (await Author.findOne({ name: root.name }))._id
+            return await Book.find({ author: authorId }).countDocuments()
+          } catch (error) {
+            throw new ApolloError(error.message)
+          }
       }
   },
 
   Mutation:  {
-      addBook: (root, args) => {
-          const bookToAdd = {
+      addBook: async (root, args) => {
+          //Create author if non-existing
+          const exists = await Author.exists({ name: args.author })
+
+          if (!exists) {
+            const newAuthor = new Author({ name: args.author })
+            await newAuthor.save()
+          }
+
+          const bookToAdd = new Book({
               title: args.title,
-              author: args.author,
+              author: (await Author.findOne({ name: args.author }))._id,
               published: args.published,
               genres: args.genres,
               id: uuid()
-          }
+          })
+          await bookToAdd.save()
 
-          if (authors.filter( a => a.name === args.author).length === 0) {
-              authors = authors.concat({
-                  name: args.author
-              })
-          }
-
-          books = books.concat(bookToAdd)
-          return bookToAdd
+          return await bookToAdd.populate('author')
       },
 
-      editAuthor: (root, args) => {
-          const authorToEdit = authors.find( a => a.name === args.name )
-          if (!authorToEdit) {
-              return null
+      editAuthor: async (root, args) => {
+          const author = await Author.findOne({ name: args.name })
+          if (!author) {
+            throw new UserInputError('author non-existing in database')
           }
 
-          const updated = { ...authorToEdit, born: args.setToBorn }
-          authors = authors.map( a => a.name === args.name ? updated : a )
-          return updated
+          author.born = args.setToBorn
+          await author.save()
+          
+          return author
       }
   }
 }
