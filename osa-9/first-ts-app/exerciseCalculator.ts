@@ -27,7 +27,14 @@ const parseArgs = (args: Array<string>): Specs => {
     };
 };
 
-const calculateExcercises = (hours: Array<number>, target: number): ExStats => {
+export const calculateExcercises = (
+    hours: Array<number>,
+    target: number
+): ExStats => {
+    if (!Array.isArray(hours))
+        throw Error("Please provide an array of exercise hours.");
+    if (typeof target !== "number")
+        throw Error("Please provide the target as number.");
     const average: number = hours.reduce((a, b) => a + b) / hours.length;
     const diff: number = target - average;
 
